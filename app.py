@@ -1,12 +1,11 @@
 import streamlit as st
-import nltk
 from nltk.corpus import wordnet
 from nltk.tokenize import word_tokenize
 from sentence_transformers import SentenceTransformer
 from transformers import pipeline
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
-
+import nltk
 
 nltk.download('punkt')
 nltk.download('wordnet')
