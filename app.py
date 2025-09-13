@@ -9,7 +9,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 nltk.download('punkt')
 nltk.download('wordnet')
 
-# Models
+# Initialize models
 sbert_model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
 summarizer = pipeline('summarization')
 
@@ -38,9 +38,15 @@ def semantic_similarity(resume, description):
 
 def summarization_similarity(resume, description):
     try:
+        # Limit input size to prevent token limit errors
+        if len(resume.split()) > 500:
+            resume = ' '.join(resume.split()[:500])
+
         summary = summarizer(resume, max_length=150, min_length=40, do_sample=False)[0]['summary_text']
-    except Exception:
-        summary = resume
+    except Exception as e:
+        print(f"Summarizer error: {e}")
+        summary = resume  # Fallback
+
     embeddings = sbert_model.encode([summary, description])
     similarity = cosine_similarity([embeddings[0]], [embeddings[1]])[0][0]
     return similarity * 100
@@ -48,7 +54,7 @@ def summarization_similarity(resume, description):
 def hybrid_scoring(k1, k2, k3, k4):
     return (0.2 * k1) + (0.3 * k2) + (0.3 * k3) + (0.2 * k4)
 
-# Streamlit App
+# Streamlit UI
 st.title("📄 Resume vs Internship Matching System")
 
 resume = st.text_area("Paste Resume Text", "John is a software engineering student skilled in Python, JavaScript, React, and Django.", height=150)
